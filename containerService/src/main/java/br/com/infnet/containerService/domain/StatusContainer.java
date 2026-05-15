@@ -1,0 +1,14 @@
+package br.com.infnet.containerService.domain;
+
+public enum StatusContainer {
+    CHEGOU,
+    DOCUMENTACAO_PENDENTE,
+    DOCUMENTACAO_CRIADA,
+    INSPECAO_SOLICITADA,
+    INSPECAO_APROVADA,
+    INSPECAO_REPROVADA,
+    ALFANDEGA_LIBERADA,
+    BLOQUEADO,
+    ARMAZENADO_NO_PATIO,
+    LIBERADO
+}
