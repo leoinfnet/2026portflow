@@ -5,7 +5,11 @@
     <file url="file://$PROJECT_DIR$/containerService/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/eureka/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/eureka/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/gateway/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/gateway/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/terminalService/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/terminalService/src/main/resources" charset="UTF-8" />
   </component>
 </project>

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/containers")
+@RequestMapping("/")
 @RequiredArgsConstructor
 public class ContainerController {
     private final ContainerService service;

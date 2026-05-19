@@ -16,5 +16,37 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+  mongo:
+    image: mongo:8
+    container_name: portflow-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: portflow
+      MONGO_INITDB_ROOT_PASSWORD: portflow
+      MONGO_INITDB_DATABASE: terminal_service
+    ports:
+      - "27017:27017"
+    volumes:
+      - portflow-mongodb-data:/data/db
+      - ./mongo/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: [ "CMD", "mongosh", "--username", "portflow", "--password", "portflow", "--authenticationDatabase", "admin", "--eval", "db.adminCommand('ping')" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  mongo-express:
+    image: mongo-express:1.0.2
+    container_name: portflow-mongo-express
+   # depends_on:
+    #  mongodb:
+     #   condition: service_healthy
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: portflow
+      ME_CONFIG_MONGODB_ADMINPASSWORD: portflow
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: admin
+    ports:
+      - "8082:8081"
 volumes:
   portflow-postgres-data:
+  portflow-mongodb-data:
