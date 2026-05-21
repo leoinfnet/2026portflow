@@ -1,9 +1,14 @@
 package br.com.infnet.containerService.service;
 
+import br.com.infnet.containerService.client.TerminalClient;
 import br.com.infnet.containerService.domain.PortContainer;
 import br.com.infnet.containerService.domain.StatusContainer;
 import br.com.infnet.containerService.dto.ContainerArrivalRequest;
+import br.com.infnet.containerService.dto.ValidacaoTerminalResponse;
+import br.com.infnet.containerService.exception.TerminalValidationException;
+import br.com.infnet.containerService.kafka.KafkaService;
 import br.com.infnet.containerService.repository.PortContainerRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,6 +20,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ContainerService {
     private final PortContainerRepository repository;
+    private final TerminalService service;
+    private final KafkaService kafkaService;
 
     public PortContainer registerArrival(ContainerArrivalRequest request){
         PortContainer container = new PortContainer(
@@ -24,13 +31,19 @@ public class ContainerService {
                 request.originCountry(),
                 request.destinationCountry(),
                 request.cargoType(),
-                StatusContainer.CHEGOU,
+                StatusContainer.DOCUMENTACAO_PENDENTE,
                 LocalDateTime.now()
         );
-
-        return repository.save(container);
-
+        ValidacaoTerminalResponse validacao = service.validarTerminal(request.terminalId(),
+                request.cargoType());
+        if(!validacao.terminalValido()){
+            throw new TerminalValidationException(validacao.mensagem());
+        }
+        PortContainer saved = repository.save(container);
+        kafkaService.sendDocumentacaoPendente(saved.getId());
+        return  saved;
     }
+
     public List<PortContainer> findAll(){
         return repository.findAll();
     }
