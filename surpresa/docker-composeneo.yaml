@@ -1,0 +1,73 @@
+services:
+  postgres-legado:
+    image: postgres:17
+    container_name: portflow-postgres-legado
+    command:
+      - "postgres"
+      - "-c"
+      - "wal_level=logical"
+      - "-c"
+      - "max_wal_senders=10"
+      - "-c"
+      - "max_replication_slots=10"
+    environment:
+      POSTGRES_DB: portflow_legado
+      POSTGRES_USER: portflow
+      POSTGRES_PASSWORD: portflow
+    ports:
+      - "5433:5432"
+    volumes:
+      - portflow-postgres-legado-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U portflow -d portflow_legado"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - portflow-network
+
+  neo4j:
+    image: neo4j:5.26
+    container_name: portflow-neo4j
+    environment:
+      NEO4J_AUTH: neo4j/portflow123
+
+      # Plugins úteis para laboratório
+      NEO4J_PLUGINS: '["apoc"]'
+
+      # Libera procedimentos APOC básicos
+      NEO4J_dbms_security_procedures_unrestricted: apoc.*
+      NEO4J_dbms_security_procedures_allowlist: apoc.*
+
+      # Configurações didáticas para ambiente local
+      NEO4J_server_memory_heap_initial__size: 512m
+      NEO4J_server_memory_heap_max__size: 1G
+      NEO4J_server_memory_pagecache_size: 512m
+    ports:
+      - "7474:7474" # Neo4j Browser
+      - "7687:7687" # Bolt Driver
+    volumes:
+      - portflow-neo4j-data:/data
+      - portflow-neo4j-logs:/logs
+      - portflow-neo4j-import:/var/lib/neo4j/import
+      - portflow-neo4j-plugins:/plugins
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:7474 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - portflow-network
+
+
+volumes:
+  portflow-postgres-legado-data:
+  portflow-neo4j-data:
+  portflow-neo4j-logs:
+  portflow-neo4j-import:
+  portflow-neo4j-plugins:
+  portflow-kafka-data:
+
+networks:
+  portflow-network:
+    driver: bridge

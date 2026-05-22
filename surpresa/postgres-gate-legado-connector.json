@@ -1,0 +1,32 @@
+{
+  "name": "postgres-gate-legado-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+
+    "database.hostname": "postgres-legado",
+    "database.port": "5432",
+    "database.user": "portflow",
+    "database.password": "portflow",
+    "database.dbname": "portflow_legado",
+
+    "topic.prefix": "portflow_legado",
+
+    "plugin.name": "pgoutput",
+    "slot.name": "portflow_gate_slot",
+    "publication.name": "portflow_gate_publication",
+    "publication.autocreate.mode": "filtered",
+
+    "table.include.list": "public.gate_evento_legado",
+
+    "snapshot.mode": "initial",
+
+    "decimal.handling.mode": "double",
+    "time.precision.mode": "connect",
+
+    "tombstones.on.delete": "false",
+
+    "include.schema.changes": "false",
+
+    "heartbeat.interval.ms": "10000"
+  }
+}
