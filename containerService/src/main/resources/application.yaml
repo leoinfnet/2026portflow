@@ -1,39 +1,6 @@
 spring:
   application:
     name: container-service
-  datasource:
-    url: jdbc:postgresql://localhost:5432/portflow?currentSchema=container_service
-    username: portflow
-    password: portflow
-    driver-class-name: org.postgresql.Driver
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
-      properties:
-        hibernate:
-          default_schema: container_service
-          format_sql: true
-      show-sql: true
-  kafka:
-    bootstrap-servers: localhost:9092
-    producer:
-      key-serializer:  org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-    consumer:
-      group-id: container-service-documentacao-v1
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
-      properties:
-        spring.json.value.default.type: br.com.infnet.containerService.events.ContainerStatusEvent
-        spring.json.trusted.packages: br.com.infnet.containerService.events
-        spring.json.use.type.headers: false
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-    register-with-eureka: true
-    fetch-registry: true
 
 management:
   endpoints:
@@ -41,27 +8,4 @@ management:
       exposure:
         include: health,info
 
-server:
-  port: 9080
 
-api:
-  endpoints:
-    terminal: TERMINAL-SERVICE
-resilience4j:
-  circuitbreaker:
-    instances:
-      terminalValidation:
-        slidingWindowSize: 4
-        minimumNumberOfCalls: 4
-        failureRateThreshold: 50
-        waitDurationInOpenState: 10s
-        permittedNumberOfCallsInHalfOpenState: 2
-  retry:
-    instances:
-      terminalValidation:
-        maxAttempts: 3
-        waitDuration: 500ms
-        retryExceptions:
-          - feign.FeignException
-          - java.net.ConnectException
-          - java.net.SocketTimeoutException

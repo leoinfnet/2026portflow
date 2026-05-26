@@ -1,14 +1,12 @@
 package br.com.infnet.containerService.service;
 
-import br.com.infnet.containerService.client.TerminalClient;
 import br.com.infnet.containerService.domain.PortContainer;
 import br.com.infnet.containerService.domain.StatusContainer;
 import br.com.infnet.containerService.dto.ContainerArrivalRequest;
 import br.com.infnet.containerService.dto.ValidacaoTerminalResponse;
 import br.com.infnet.containerService.exception.TerminalValidationException;
-import br.com.infnet.containerService.kafka.KafkaService;
+import br.com.infnet.containerService.kafka.KafkaServiceImpl;
 import br.com.infnet.containerService.repository.PortContainerRepository;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,8 +18,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ContainerService {
     private final PortContainerRepository repository;
-    private final TerminalService service;
-    private final KafkaService kafkaService;
+    private final TerminalServiceImpl service;
+    private final KafkaServiceImpl kafkaService;
 
     public PortContainer registerArrival(ContainerArrivalRequest request){
         PortContainer container = new PortContainer(

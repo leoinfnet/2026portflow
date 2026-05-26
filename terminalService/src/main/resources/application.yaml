@@ -1,15 +1,12 @@
 spring:
+  profiles:
+    active: prod
   application:
     name: terminal-service
-
-  mongodb:
-    uri: mongodb://terminal_service:terminal_service@localhost:27017/terminal_service
-server:
-  port: 9081
-
   eureka:
     client:
-      service-url: http://localhost:8761/eureka/
+      enabled: false
+
 
 management:
   endpoints:

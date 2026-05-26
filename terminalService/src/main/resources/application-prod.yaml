@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: terminal-service
+
+  mongodb:
+    uri: mongodb://terminal_service:terminal_service@localhost:27017/terminal_service
+
+server:
+  port: 8080
+
+  eureka:
+    client:
+      enable: false
+      service-url: http://eureka-server:8761/eureka/
