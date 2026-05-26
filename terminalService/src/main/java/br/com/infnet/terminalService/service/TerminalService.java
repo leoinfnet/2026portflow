@@ -4,17 +4,28 @@ import br.com.infnet.terminalService.domain.Capacidade;
 import br.com.infnet.terminalService.domain.Terminal;
 import br.com.infnet.terminalService.dto.ValidacaoTerminalResponse;
 import br.com.infnet.terminalService.execption.TerminalNotFoundException;
+import br.com.infnet.terminalService.metrics.TerminalMetrics;
 import br.com.infnet.terminalService.repository.TerminalRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.query.Term;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 
 @Service
 public class TerminalService {
+
+
+    private final TerminalMetrics terminalMetrics;
+
+
     private final TerminalRepository terminalRepository;
 
-    public TerminalService(TerminalRepository terminalRepository) {
+    public TerminalService(TerminalRepository terminalRepository,
+                           TerminalMetrics terminalMetrics) {
         this.terminalRepository = terminalRepository;
+        this.terminalMetrics = terminalMetrics;
     }
 
     public List<Terminal> findAll() {
@@ -26,19 +37,45 @@ public class TerminalService {
                 .orElseThrow(() -> new TerminalNotFoundException(terminalId));
     }
 
+
+
     public ValidacaoTerminalResponse validarTerminal(String terminalId, String tipoCarga) {
+        return terminalMetrics.medirTempoValidacao(() -> executarValidacaoTerminal(terminalId, tipoCarga));
+    }
+
+    private ValidacaoTerminalResponse executarValidacaoTerminal(String terminalId, String tipoCarga) {
+        terminalMetrics.incrementarValidacoesTotal();
+
         return terminalRepository.findByTerminalId(terminalId)
                 .map(terminal -> validarTerminalExistente(terminal, tipoCarga))
-                .orElseGet(() -> new ValidacaoTerminalResponse(
-                        terminalId,
-                        false,
-                        false,
-                        false,
-                        false,
-                        false,
-                        "Terminal não encontrado"
-                ));
+                .orElseGet(() -> criarRespostaTerminalNaoEncontrado(terminalId));
     }
+    private ValidacaoTerminalResponse criarRespostaTerminalNaoEncontrado(String terminalId) {
+        terminalMetrics.incrementarValidacoesRecusadas();
+
+        return new ValidacaoTerminalResponse(
+                terminalId,
+                false,
+                false,
+                false,
+                false,
+                false,
+                "Terminal não encontrado"
+        );
+    }
+//    public ValidacaoTerminalResponse validarTerminal(String terminalId, String tipoCarga) {
+//        return terminalRepository.findByTerminalId(terminalId)
+//                .map(terminal -> validarTerminalExistente(terminal, tipoCarga))
+//                .orElseGet(() -> new ValidacaoTerminalResponse(
+//                        terminalId,
+//                        false,
+//                        false,
+//                        false,
+//                        false,
+//                        false,
+//                        "Terminal não encontrado"
+//                ));
+//    }
 
     private ValidacaoTerminalResponse validarTerminalExistente(
             Terminal terminal,
@@ -49,7 +86,7 @@ public class TerminalService {
         boolean capacidadeDisponivel = possuiCapacidadeDisponivel(terminal);
 
         boolean terminalValido = ativo && tipoCargaAceito && capacidadeDisponivel;
-
+        registrarResultadoValidacao(terminalValido);
         String mensagem = montarMensagem(
                 terminal.getTerminalId(),
                 tipoCarga,
@@ -105,6 +142,15 @@ public class TerminalService {
         }
 
         return "Terminal " + terminalId + " inválido para a operação";
+    }
+
+    private void registrarResultadoValidacao(boolean terminalValido) {
+        terminalMetrics.incrementarValidacoesTotal();
+        if (terminalValido) {
+            terminalMetrics.incrementarValidacoesAprovadas();
+        } else {
+            terminalMetrics.incrementarValidacoesRecusadas();
+        }
     }
 
 }
