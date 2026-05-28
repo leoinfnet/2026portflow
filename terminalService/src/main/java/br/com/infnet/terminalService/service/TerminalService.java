@@ -6,6 +6,8 @@ import br.com.infnet.terminalService.dto.ValidacaoTerminalResponse;
 import br.com.infnet.terminalService.execption.TerminalNotFoundException;
 import br.com.infnet.terminalService.metrics.TerminalMetrics;
 import br.com.infnet.terminalService.repository.TerminalRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Term;
 import org.springframework.stereotype.Service;
@@ -15,11 +17,9 @@ import java.util.List;
 
 @Service
 public class TerminalService {
-
+    private static final Logger log = LoggerFactory.getLogger(TerminalService.class);
 
     private final TerminalMetrics terminalMetrics;
-
-
     private final TerminalRepository terminalRepository;
 
     public TerminalService(TerminalRepository terminalRepository,
@@ -36,8 +36,6 @@ public class TerminalService {
         return terminalRepository.findByTerminalId(terminalId)
                 .orElseThrow(() -> new TerminalNotFoundException(terminalId));
     }
-
-
 
     public ValidacaoTerminalResponse validarTerminal(String terminalId, String tipoCarga) {
         return terminalMetrics.medirTempoValidacao(() -> executarValidacaoTerminal(terminalId, tipoCarga));
@@ -113,7 +111,6 @@ public class TerminalService {
         if (capacidade == null) {
             return false;
         }
-
         return capacidade.possuiCapacidadeDisponivel();
     }
 
@@ -146,9 +143,13 @@ public class TerminalService {
 
     private void registrarResultadoValidacao(boolean terminalValido) {
         terminalMetrics.incrementarValidacoesTotal();
+
+
         if (terminalValido) {
+            log.info("Terminal validado com sucesso");
             terminalMetrics.incrementarValidacoesAprovadas();
         } else {
+            log.info("Terminal validado com error");
             terminalMetrics.incrementarValidacoesRecusadas();
         }
     }
