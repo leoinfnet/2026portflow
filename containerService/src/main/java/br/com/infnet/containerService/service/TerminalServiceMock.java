@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile({"default","dev"})
+@Profile({"qqoutro"})
 public class TerminalServiceMock implements TerminalService{
     @Override
     public ValidacaoTerminalResponse validarTerminal(String terminalId, String cargoType) {

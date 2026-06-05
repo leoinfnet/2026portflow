@@ -9,6 +9,7 @@ spring:
 server:
   port: 9081
 
-eureka:
-  client:
-    enabled: false
+  eureka:
+    client:
+      enable: false
+      service-url: http://eureka-server:8761/eureka/

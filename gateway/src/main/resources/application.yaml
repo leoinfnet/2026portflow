@@ -20,7 +20,38 @@ spring:
 server:
   port: 9999
 management:
+  tracing:
+    sampling:
+      probability: 1.0
+    propagation:
+      type: w3c
+  otlp:
+    metrics:
+      export:
+        enabled: false
+  opentelemetry:
+    resource-attributes:
+      service.name: ${spring.application.name}
+      service.namespace: portflow
+      deployment.environment: local
+    tracing:
+      export:
+        otlp:
+          endpoint: http://localhost:4318/v1/traces
+          protocol: http/protobuf
   endpoints:
     web:
       exposure:
         include: health,info,gateway
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] [${spring.application.name}, traceId=%X{traceId:-}, spanId=%X{spanId:-}] %logger{36} - %msg%n"
+
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.web.client.RestClient: DEBUG
+    org.springframework.web.servlet.function: DEBUG
+    io.micrometer.tracing: DEBUG
+    io.opentelemetry: INFO

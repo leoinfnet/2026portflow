@@ -1,0 +1,38 @@
+services:
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: portflow-otel-collector
+    command: [ "--config=/etc/otel-collector-config.yml" ]
+    volumes:
+      - ./otel-collector-config.yml:/etc/otel-collector-config.yml
+    ports:
+      - "9411:9411" #zipking
+      - "4317:4317" #grpc
+      - "4318:4318" #http
+    depends_on:
+      - tempo
+  tempo:
+    image: grafana/tempo:latest
+    container_name: dock
+    user: "0:0"
+    command: ["-config.file=/etc/tempo.yml"]
+    volumes:
+      - ./tempo.yml:/etc/tempo.yml
+      - tempo-data:/tmp/tempo
+    ports:
+      - "3200:3200"
+      - "4317"
+      - "4318"
+  grafana:
+    image: grafana/grafana:latest
+    container_name: portflow-grafana-tele
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - tempo
+volumes:
+  grafana-data:
+  tempo-data:

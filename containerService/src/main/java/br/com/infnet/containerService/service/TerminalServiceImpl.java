@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-@Profile({"prod"})
+@Profile({"dev"})
 
 public class TerminalServiceImpl implements TerminalService {
     private final TerminalClient client;
