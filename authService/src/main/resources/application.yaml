@@ -1,0 +1,19 @@
+server:
+  port: 9998
+spring:
+  application:
+    name: container-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/portflow?currentSchema=auth_service
+    username: portflow
+    password: portflow
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: auth_service
+        format_sql: true
+    show-sql: true

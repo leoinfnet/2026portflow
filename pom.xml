@@ -14,6 +14,7 @@
         <module>eureka</module>
         <module>terminalService</module>
         <module>gateway</module>
+        <module>authService</module>
     </modules>
     <packaging>pom</packaging>
     <properties>
